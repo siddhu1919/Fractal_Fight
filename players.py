@@ -3,14 +3,14 @@ import time
 
 
 class Player:
-    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sfx):
+    def __init__(self,player, x, y,flip, data, sprite_sheet, animation_steps,sfx):
         self.player = player
         self.size = data[0]
         self.scale = data[1]
         self.offset = data[2]
         self.flip = flip
         self.animation_list = self.load_sprite_images(sprite_sheet, animation_steps)
-        self.action = 0
+        self.action = 0  
         self.frameindex = 0
         self.image = self.animation_list[self.action][self.frameindex]
         self.update_time = pg.time.get_ticks()
@@ -19,12 +19,12 @@ class Player:
         self.running = False
         self.jump = 1
         self.attacking = 0
-        self.action_type = 0  # Idle , Running , Attack1 , Attack2 , Death , TakeHit_white , TakeHit2, Fall , Jump
+        self.action_type = 0 # Idle , Running , Attack1 , Attack2 , Death , TakeHit_white , TakeHit2, Fall , Jump
         self.attack_pause = 0
         self.attack_sound = sfx[0]
         self.jump_sfx = sfx[1]
-        self.hit = 0
-        self.health = 100  # Change to 100 after Testing
+        self.hit =  0
+        self.health = 100 # Change to 100 after Testing
         self.alive = 1
 
     # ----------------------------------------------------------------------------------------#
@@ -34,19 +34,13 @@ class Player:
         for y, animation in enumerate(animation_steps):
             temp_img_list = []
             for x in range(animation):
-                temp_img = sprite_sheet.subsurface(
-                    x * self.size, y * self.size, self.size, self.size
-                )
-                temp_img_list.append(
-                    pg.transform.scale(
-                        temp_img, (self.scale * self.size, self.scale * self.size)
-                    )
-                )
+                temp_img = sprite_sheet.subsurface(x*self.size, y*self.size, self.size,self.size)
+                temp_img_list.append(pg.transform.scale(temp_img,(self.scale*self.size,self.scale*self.size)))
             animation_list.append(temp_img_list)
         return animation_list
 
     # ----------------------------------------------------------------------------------------#
-    def move(self, screen_width, screen_height, enemy, game_over):
+    def move(self, screen_width, screen_height, enemy,game_over):
         SPEED = 50
         GRAVITY = 5
         dx = 0
@@ -57,11 +51,11 @@ class Player:
         # Registering Response From Keyboard
         key = pg.key.get_pressed()
         mouse_click = pg.mouse.get_pressed()
-
+        
         # Attacking Code
         if self.attacking == 0 and self.alive == 1 and game_over == 0:
             # Controls For PLayer 1
-            if self.player == 1:
+            if self.player==1:
                 # moving the Player Right And Left
                 if key[pg.K_a]:
                     dx = -SPEED
@@ -85,7 +79,7 @@ class Player:
                         self.action_type = 2
 
             # Controls For PLayer 2
-            if self.player == 2 and self.alive == 1:
+            if self.player==2 and self.alive == 1:
                 # moving the Player
                 if key[pg.K_LEFT]:
                     dx = -SPEED
@@ -127,10 +121,11 @@ class Player:
             self.flip = False
         else:
             self.flip = True
-
-        # implementing  Attack Cooldown
+        
+        #implementing  Attack Cooldown 
         if self.attack_pause > 0:
             self.attack_pause -= 1
+
 
         # Updating the Player Position
         self.rect.x += dx
@@ -148,6 +143,7 @@ class Player:
         elif self.hit == 1:
             self.action_update(5)
 
+
         # Attacking Player animation
         elif self.attacking == 1:
             if self.action_type == 1:
@@ -164,13 +160,14 @@ class Player:
             self.action_update(1)
         else:
             self.action_update(0)
+        
 
         # Animation Sleep Time
-        animation_pause = 100  # 15ms
+        animation_pause = 50 # 15ms
         self.image = self.animation_list[self.action][self.frameindex]
         if pg.time.get_ticks() - self.update_time > animation_pause:
             self.frameindex += 1
-            self.update_time = pg.time.get_ticks()
+            self.update_time = pg.time.get_ticks() 
         # Checking the animation has finished or not
         if self.frameindex >= len(self.animation_list[self.action]):
             # If Player Dies
@@ -181,18 +178,20 @@ class Player:
                 # if attack animation is finished
                 if self.action == 2 or self.action == 3:
                     self.attacking = 0
-                    self.attack_pause = 5  # 0.2 sec
+                    self.attack_pause = 5 # 0.2 sec
                 # If Players got hit
                 if self.action == 5:
                     self.hit = 0
                     # WHen both Players Attack at the same time (Action Nullified)
-                    self.attacking = False
+                    self.attacking =  False
                     self.attack_pause = 2
+            
+                
 
     # ----------------------------------------------------------------------------------------#
     # Attacks Method
     def attack(self, enemy):
-        if self.attack_pause == 0:
+        if self.attack_pause == 0 :
             # Attack Sound
             self.attack_sound.play()
             self.attacking = 1
@@ -218,21 +217,17 @@ class Player:
     #     pg.draw.rect(surface, (0, 255, 0), defense_rect)
 
     # ----------------------------------------------------------------------------------------#
-    def action_update(self, nxt_action):
+    def action_update(self,nxt_action):
         if nxt_action != self.action:
             self.action = nxt_action
-            # updating the Frame Index as well
+            #updating the Frame Index as well
             self.frameindex = 0
             self.update_time = pg.time.get_ticks()
 
+
+
     # ----------------------------------------------------------------------------------------#
     def draw(self, surface):
-        img = pg.transform.flip(self.image, self.flip, False)
+        img = pg.transform.flip(self.image,self.flip,False)
         # pg.draw.rect(surface, (255, 0, 0), self.rect) # For Debugging and Testing
-        surface.blit(
-            img,
-            (
-                self.rect.x - (self.offset[0] * self.scale),
-                self.rect.y - (self.offset[1] * self.scale),
-            ),
-        )
+        surface.blit(img, (self.rect.x - (self.offset[0]*self.scale), self.rect.y - (self.offset[1]*self.scale)))
